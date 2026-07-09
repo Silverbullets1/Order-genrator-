@@ -3,15 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Silverbullet Premium - Ultra Edition</title>
-    <!-- Modern Premium Font -->
+    <title>Silverbullet Premium - Corporate Edition</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;800&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     
     <style>
         :root {
-            --bg-color: #050b14;
-            --card-bg: rgba(15, 23, 42, 0.65);
+            --bg-color: #020617;
+            --card-bg: rgba(15, 23, 42, 0.8);
             --primary: #0ea5e9;
             --primary-hover: #0284c7;
             --text-main: #f8fafc;
@@ -27,7 +26,6 @@
             align-items: center;
             justify-content: center;
             background-color: var(--bg-color); 
-            /* Animated Background Glow */
             background-image: 
                 radial-gradient(circle at 15% 50%, rgba(14, 165, 233, 0.15), transparent 25%),
                 radial-gradient(circle at 85% 30%, rgba(56, 189, 248, 0.1), transparent 25%);
@@ -35,7 +33,6 @@
             color: var(--text-main);
         }
 
-        /* Glassmorphism Card */
         .container {
             width: 100%;
             max-width: 480px; 
@@ -84,14 +81,11 @@
             transition: all 0.3s ease;
         }
 
-        input::placeholder { color: #475569; }
-
         input:focus { 
             outline: none; 
             border-color: var(--primary); 
             background-color: rgba(0,0,0,0.4);
             box-shadow: 0 0 0 4px rgba(14, 165, 233, 0.15); 
-            transform: translateY(-2px);
         }
         
         .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
@@ -117,13 +111,7 @@
             transform: translateY(-3px); 
             box-shadow: 0 15px 25px -10px rgba(14, 165, 233, 0.6);
         }
-
-        button:active { transform: translateY(0); }
-
-        button.success { 
-            background: linear-gradient(135deg, #10b981, #059669); 
-            box-shadow: 0 10px 20px -10px rgba(16, 185, 129, 0.5);
-        }
+        button.success { background: linear-gradient(135deg, #10b981, #059669); }
     </style>
 </head>
 <body>
@@ -158,7 +146,7 @@
                 <input type="text" id="txHash" placeholder="Paste TxID here...">
             </div>
 
-            <button type="submit" id="generateBtn">Generate Crypto Receipt</button>
+            <button type="submit" id="generateBtn">Generate Professional Receipt</button>
         </form>
     </div>
 
@@ -178,7 +166,7 @@
             const cryptoType = document.getElementById('cryptoType').value.trim().toUpperCase();
             let txHash = document.getElementById('txHash').value.trim();
             
-            if (!txHash) txHash = "Not Provided";
+            if (!txHash) txHash = "N/A - Manual Verification Required";
 
             let cleanAmount = parseFloat(rawAmount).toFixed(2);
             if (isNaN(cleanAmount)) cleanAmount = "0.00";
@@ -192,154 +180,161 @@
             const timeString = today.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
 
             // --- 0. BACKGROUND WATERMARK ---
-            doc.setTextColor(235, 240, 245); 
+            doc.setTextColor(245, 248, 250); 
+            doc.setFontSize(60);
             doc.setFont("helvetica", "bold");
-            
-            doc.setFontSize(55);
-            doc.text("SILVERBULLET STORE", 20, 160, { angle: 45 });
-            
-            doc.setFontSize(35);
-            doc.text("SUPPORT: @Silverbullets_bot", 35, 215, { angle: 45 });
+            doc.text("SILVERBULLET", 30, 160, { angle: 45 });
+            doc.text("PAID IN FULL", 50, 220, { angle: 45 });
 
-            doc.setFontSize(25);
-            doc.text("VERIFIED TRANSACTION", 65, 260, { angle: 45 });
-
-            // --- 1. EDGE-TO-EDGE DARK HEADER ---
+            // --- 1. PREMIUM HEADER ---
             doc.setFillColor(15, 23, 42); 
-            doc.rect(0, 0, 210, 45, 'F');
+            doc.rect(0, 0, 210, 50, 'F');
             
+            // Cyan bottom border for header
             doc.setDrawColor(14, 165, 233); 
             doc.setLineWidth(1.5);
-            doc.line(0, 45, 210, 45);
+            doc.line(0, 50, 210, 50);
 
             doc.setTextColor(255, 255, 255); 
             doc.setFontSize(26);
-            doc.text("SILVERBULLET", 15, 28);
-            
-            doc.setFillColor(14, 165, 233);
-            doc.rect(155, 18, 40, 12, 'F');
-            doc.setTextColor(255, 255, 255);
-            doc.setFontSize(12);
-            doc.text("RECEIPT", 175, 26, null, null, "center");
-
-            // --- 2. ORDER METADATA ---
-            doc.setTextColor(80, 80, 80); 
-            doc.setFontSize(9);
-            doc.text("ISSUED TO:", 15, 60);
-            doc.text("ORDER NO:", 105, 60);
-            doc.text("DATE & TIME:", 155, 60);
-            
-            doc.text("PAYMENT METHOD:", 15, 75);
-            doc.text("TRANSACTION HASH (TXID):", 105, 75);
-
-            doc.setTextColor(20, 20, 20); 
-            doc.setFontSize(11);
-            doc.setFont("helvetica", "normal");
-            doc.text(buyerName, 15, 65);
-            doc.text(orderNumber, 105, 65);
-            doc.text(`${dateString} ${timeString}`, 155, 65);
-            
-            doc.text(cryptoType, 15, 80);
-            
-            let displayHash = txHash;
-            if (displayHash.length > 35) {
-                displayHash = displayHash.substring(0, 32) + "...";
-            }
-            doc.text(displayHash, 105, 80);
-
-            // --- NEW: PAID STAMP ---
-            doc.setTextColor(16, 185, 129); // Emerald Green
-            doc.setFontSize(45);
             doc.setFont("helvetica", "bold");
-            // Transparent/light green look for the stamp
-            doc.setGState(new doc.GState({opacity: 0.15})); 
-            doc.text("PAID IN FULL", 120, 120, { angle: 335 });
-            doc.setGState(new doc.GState({opacity: 1.0})); // Reset opacity
+            doc.text("SILVERBULLET", 15, 32);
+            
+            // Emerald Green "PAID" Badge
+            doc.setFillColor(16, 185, 129); 
+            doc.rect(160, 22, 35, 12, 'F');
+            doc.setTextColor(255, 255, 255);
+            doc.setFontSize(11);
+            doc.text("PAID", 177.5, 30, null, null, "center");
+
+            // --- 2. INVOICE METADATA ---
+            // Left Column (Billed To)
+            doc.setTextColor(100, 100, 100); 
+            doc.setFontSize(10);
+            doc.setFont("helvetica", "bold");
+            doc.text("BILLED TO:", 15, 65);
+            
+            doc.setTextColor(30, 30, 30); 
+            doc.setFontSize(14);
+            doc.text(buyerName, 15, 73);
+
+            // Right Column (Order Info)
+            doc.setTextColor(100, 100, 100); 
+            doc.setFontSize(10);
+            doc.text("RECEIPT NO:", 120, 65);
+            doc.text("DATE:", 120, 73);
+            doc.text("TIME:", 120, 81);
+
+            doc.setTextColor(30, 30, 30); 
+            doc.text(orderNumber, 150, 65);
+            doc.text(dateString, 150, 73);
+            doc.text(timeString, 150, 81);
 
             // --- 3. ITEMS TABLE ---
             const startY = 95;
             
+            // Table Header Background
             doc.setFillColor(241, 245, 249); 
-            doc.rect(15, startY, 180, 12, 'F');
+            doc.setDrawColor(226, 232, 240); 
+            doc.rect(15, startY, 180, 12, 'FD'); // Fill and Draw stroke
             
             doc.setTextColor(100, 100, 100);
             doc.setFontSize(10);
-            doc.setFont("helvetica", "bold");
-            doc.text("DESCRIPTION / ITEMS INCLUDED", 20, startY + 8);
+            doc.text("ITEM DESCRIPTION", 20, startY + 8);
+            doc.text("AMOUNT", 185, startY + 8, null, null, "right");
 
+            // Table Body
+            const splitItemText = doc.splitTextToSize(itemName, 140); 
+            let itemsHeight = (splitItemText.length * 6) + 15;
+            if(itemsHeight > 100) itemsHeight = 100; 
+
+            doc.rect(15, startY + 12, 180, itemsHeight, 'S'); // Draw border only
+            
             doc.setTextColor(40, 40, 40);
             doc.setFontSize(11);
             doc.setFont("helvetica", "normal");
-            const splitItemText = doc.splitTextToSize(itemName, 170); 
+            doc.text(splitItemText.slice(0, 15), 20, startY + 22);
             
-            let itemsHeight = (splitItemText.length * 6) + 10;
-            if(itemsHeight > 130) itemsHeight = 130; 
+            doc.setFont("helvetica", "bold");
+            doc.text("$" + cleanAmount, 185, startY + 22, null, null, "right");
 
-            doc.setDrawColor(226, 232, 240); 
+            // --- 4. CRYPTO VERIFICATION BOX ---
+            let paymentY = startY + 12 + itemsHeight + 10;
+
+            doc.setDrawColor(14, 165, 233); 
+            doc.setFillColor(248, 250, 252); 
             doc.setLineWidth(0.5);
-            doc.rect(15, startY + 12, 180, itemsHeight); 
-            doc.text(splitItemText.slice(0, 20), 20, startY + 20);
+            doc.rect(15, paymentY, 180, 30, 'FD');
 
-            // --- 4. TOTAL AMOUNT BLOCK ---
-            let totalY = startY + 12 + itemsHeight + 15;
+            doc.setTextColor(14, 165, 233);
+            doc.setFontSize(10);
+            doc.setFont("helvetica", "bold");
+            doc.text("PAYMENT VERIFIED VIA CRYPTOCURRENCY", 20, paymentY + 8);
 
-            if (totalY > 230) {
+            doc.setTextColor(80, 80, 80);
+            doc.setFontSize(9);
+            doc.text("NETWORK / COIN:", 20, paymentY + 16);
+            doc.text("TRANSACTION ID:", 20, paymentY + 24);
+
+            doc.setTextColor(30, 30, 30);
+            doc.text(cryptoType, 55, paymentY + 16);
+            
+            let displayHash = txHash;
+            if (displayHash.length > 50) {
+                displayHash = displayHash.substring(0, 47) + "...";
+            }
+            doc.text(displayHash, 55, paymentY + 24);
+
+            // --- 5. TOTAL BLOCK ---
+            let totalY = paymentY + 45;
+
+            // Page break safety
+            if (totalY > 260) {
                 doc.addPage();
                 totalY = 20; 
             }
 
-            doc.setFillColor(14, 165, 233); 
-            doc.rect(120, totalY, 75, 22, 'F');
+            doc.setFillColor(15, 23, 42); 
+            doc.rect(120, totalY, 75, 25, 'F');
             
             doc.setTextColor(255, 255, 255);
             doc.setFontSize(10);
-            doc.setFont("helvetica", "bold");
-            doc.text("TOTAL (USD equivalent):", 125, totalY + 8);
-            
-            doc.setFontSize(14);
-            doc.text("$" + cleanAmount, 190, totalY + 15, null, null, "right");
-            
-            doc.setFontSize(8);
             doc.setFont("helvetica", "normal");
-            doc.text("PAID VIA " + cryptoType, 190, totalY + 19, null, null, "right");
-
-            // --- 5. FOOTER & SECURITY FEATURES ---
-            const footerY = 275; 
+            doc.text("TOTAL PAID", 125, totalY + 10);
             
-            const authHash = txHash === "Not Provided" ? 
-                Math.random().toString(36).substring(2, 15).toUpperCase() + randomNum : 
-                txHash.substring(0, 15).toUpperCase() + randomNum;
-
-            doc.setTextColor(120, 120, 120);
-            doc.setFontSize(7);
+            doc.setFontSize(16);
             doc.setFont("helvetica", "bold");
-            doc.text("DIGITAL AUTH HASH: " + authHash, 15, footerY - 14);
+            doc.text("$" + cleanAmount, 190, totalY + 17, null, null, "right");
 
+            // --- 6. FOOTER / SECURITY BARCODE ---
+            const footerY = 280; 
+
+            // Barcode graphic
             doc.setFillColor(50, 50, 50);
             let barcodeX = 15;
-            for(let i=0; i < 35; i++) {
-                let rectWidth = Math.random() * 1.2 + 0.2; 
-                doc.rect(barcodeX, footerY - 12, rectWidth, 12, 'F');
-                barcodeX += rectWidth + (Math.random() * 1.5 + 0.3); 
+            for(let i=0; i < 30; i++) {
+                let rectWidth = Math.random() * 1.5 + 0.3; 
+                doc.rect(barcodeX, footerY - 8, rectWidth, 10, 'F');
+                barcodeX += rectWidth + (Math.random() * 2 + 0.5); 
             }
 
-            doc.setDrawColor(226, 232, 240);
-            doc.line(15, footerY + 5, 195, footerY + 5); 
-
+            // Support text
             doc.setTextColor(150, 150, 150);
             doc.setFontSize(8);
             doc.setFont("helvetica", "italic");
-            doc.text("This is an automatically generated, digitally verified receipt for a cryptocurrency transaction.", 105, footerY + 10, null, null, "center");
+            doc.text("Official Digital Receipt generated automatically.", 105, footerY, null, null, "center");
             
             doc.setTextColor(14, 165, 233); 
             doc.setFont("helvetica", "bold");
-            doc.text("Telegram Support: @Silverbullets_bot", 105, footerY + 15, null, null, "center"); 
+            doc.text("Telegram Support: @Silverbullets_bot", 105, footerY + 5, null, null, "center"); 
 
+            // Trigger Download
             doc.save("Silverbullet_Receipt_" + orderNumber + ".pdf");
 
+            // UI Feedback
             const btn = document.getElementById('generateBtn');
             const originalText = btn.innerText;
-            btn.innerText = "AUTHENTIC RECEIPT DOWNLOADED! ✓";
+            btn.innerText = "INVOICE DOWNLOADED! ✓";
             btn.classList.add("success");
             
             setTimeout(() => {
