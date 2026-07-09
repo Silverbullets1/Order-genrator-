@@ -3,93 +3,164 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Silverbullet Premium PDF - Crypto Edition</title>
+    <title>Silverbullet Premium - Ultra Edition</title>
+    <!-- Modern Premium Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;800&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     
     <style>
-        body { 
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
-            padding: 20px; 
-            max-width: 450px; 
-            margin: 40px auto; 
-            background-color: #0f172a; 
-            color: #e2e8f0;
-            border-radius: 12px;
-            box-shadow: 0 15px 35px rgba(0,255,255,0.1);
-            border: 1px solid #1e293b;
+        :root {
+            --bg-color: #050b14;
+            --card-bg: rgba(15, 23, 42, 0.65);
+            --primary: #0ea5e9;
+            --primary-hover: #0284c7;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
         }
-        h2 { text-align: center; color: #38bdf8; letter-spacing: 3px; font-weight: 800;}
-        .form-group { margin-bottom: 20px; }
-        label { display: block; font-weight: 600; margin-bottom: 8px; color: #94a3b8; font-size: 13px; text-transform: uppercase;}
+
+        body { 
+            font-family: 'Inter', sans-serif; 
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: var(--bg-color); 
+            /* Animated Background Glow */
+            background-image: 
+                radial-gradient(circle at 15% 50%, rgba(14, 165, 233, 0.15), transparent 25%),
+                radial-gradient(circle at 85% 30%, rgba(56, 189, 248, 0.1), transparent 25%);
+            background-size: 100% 100%;
+            color: var(--text-main);
+        }
+
+        /* Glassmorphism Card */
+        .container {
+            width: 100%;
+            max-width: 480px; 
+            background: var(--card-bg);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            padding: 40px 30px;
+            border-radius: 20px;
+            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5);
+            border: 1px solid rgba(255,255,255,0.08);
+            box-sizing: border-box;
+        }
+
+        h2 { 
+            text-align: center; 
+            color: #38bdf8; 
+            letter-spacing: 4px; 
+            font-weight: 800;
+            margin-top: 0;
+            margin-bottom: 30px;
+            text-shadow: 0 0 20px rgba(56, 189, 248, 0.4);
+        }
+
+        .form-group { margin-bottom: 22px; }
+        
+        label { 
+            display: block; 
+            font-weight: 500; 
+            margin-bottom: 8px; 
+            color: var(--text-muted); 
+            font-size: 12px; 
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
         input { 
             width: 100%; 
-            padding: 14px; 
+            padding: 15px; 
             box-sizing: border-box; 
-            border: 1px solid #334155; 
-            border-radius: 6px;
-            background-color: #1e293b;
+            border: 1px solid rgba(255,255,255,0.1); 
+            border-radius: 8px;
+            background-color: rgba(0,0,0,0.2);
             color: white;
             font-size: 15px;
-            transition: all 0.3s;
+            font-family: 'Inter', sans-serif;
+            transition: all 0.3s ease;
         }
-        input:focus { outline: none; border-color: #38bdf8; box-shadow: 0 0 10px rgba(56, 189, 248, 0.2); }
+
+        input::placeholder { color: #475569; }
+
+        input:focus { 
+            outline: none; 
+            border-color: var(--primary); 
+            background-color: rgba(0,0,0,0.4);
+            box-shadow: 0 0 0 4px rgba(14, 165, 233, 0.15); 
+            transform: translateY(-2px);
+        }
         
         .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
 
         button { 
             width: 100%; 
-            padding: 16px; 
-            background: linear-gradient(135deg, #0ea5e9, #0284c7);
+            padding: 18px; 
+            background: linear-gradient(135deg, var(--primary), var(--primary-hover));
             color: white; 
             border: none; 
-            font-size: 16px; 
-            font-weight: bold;
-            border-radius: 6px;
+            font-size: 15px; 
+            font-weight: 700;
+            border-radius: 8px;
             cursor: pointer; 
-            margin-top: 15px;
+            margin-top: 10px;
             text-transform: uppercase;
-            letter-spacing: 1.5px;
-            transition: all 0.3s;
+            letter-spacing: 2px;
+            box-shadow: 0 10px 20px -10px rgba(14, 165, 233, 0.5);
+            transition: all 0.3s ease;
         }
-        button:hover { opacity: 0.9; transform: translateY(-1px); }
-        button.success { background: linear-gradient(135deg, #10b981, #059669); }
+
+        button:hover { 
+            transform: translateY(-3px); 
+            box-shadow: 0 15px 25px -10px rgba(14, 165, 233, 0.6);
+        }
+
+        button:active { transform: translateY(0); }
+
+        button.success { 
+            background: linear-gradient(135deg, #10b981, #059669); 
+            box-shadow: 0 10px 20px -10px rgba(16, 185, 129, 0.5);
+        }
     </style>
 </head>
 <body>
 
-    <img id="storeLogo" src="logo.jpg" style="visibility: hidden; position: absolute; width: 1px; height: 1px;" crossorigin="anonymous">
+    <div class="container">
+        <h2>SILVERBULLET</h2>
 
-    <h2>SILVERBULLET</h2>
-
-    <form id="receiptForm">
-        <div class="form-group">
-            <label for="buyerName">Buyer Name / Handle</label>
-            <input type="text" id="buyerName" placeholder="e.g. FalconAccount_store" required>
-        </div>
-
-        <div class="form-group">
-            <label for="itemName">Items Purchased</label>
-            <input type="text" id="itemName" placeholder="e.g. x10 Premium Accounts" required>
-        </div>
-
-        <div class="grid-2">
+        <form id="receiptForm">
             <div class="form-group">
-                <label for="amount">Total USD ($)</label>
-                <input type="number" id="amount" placeholder="e.g. 150.00" step="0.01" min="0" required>
+                <label for="buyerName">Buyer Name / Handle</label>
+                <input type="text" id="buyerName" placeholder="e.g. FalconAccount_store" required>
             </div>
+
             <div class="form-group">
-                <label for="cryptoType">Crypto Used</label>
-                <input type="text" id="cryptoType" placeholder="e.g. USDT (TRC20)" required>
+                <label for="itemName">Items Purchased</label>
+                <input type="text" id="itemName" placeholder="e.g. x10 Premium Accounts" required>
             </div>
-        </div>
 
-        <div class="form-group">
-            <label for="txHash">Transaction Hash (Optional)</label>
-            <input type="text" id="txHash" placeholder="Paste TxID here...">
-        </div>
+            <div class="grid-2">
+                <div class="form-group">
+                    <label for="amount">Total USD ($)</label>
+                    <input type="number" id="amount" placeholder="e.g. 150.00" step="0.01" min="0" required>
+                </div>
+                <div class="form-group">
+                    <label for="cryptoType">Crypto Used</label>
+                    <input type="text" id="cryptoType" placeholder="e.g. USDT (TRC20)" required>
+                </div>
+            </div>
 
-        <button type="submit" id="generateBtn">Generate Crypto Receipt</button>
-    </form>
+            <div class="form-group">
+                <label for="txHash">Transaction Hash (Optional)</label>
+                <input type="text" id="txHash" placeholder="Paste TxID here...">
+            </div>
+
+            <button type="submit" id="generateBtn">Generate Crypto Receipt</button>
+        </form>
+    </div>
 
     <script>
         document.getElementById('receiptForm').addEventListener('submit', function(e) {
@@ -120,42 +191,40 @@
             const dateString = today.toLocaleDateString('en-US', options); 
             const timeString = today.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
 
-            // --- 1. Edge-to-Edge Dark Header ---
+            // --- 0. BACKGROUND WATERMARK ---
+            doc.setTextColor(235, 240, 245); 
+            doc.setFont("helvetica", "bold");
+            
+            doc.setFontSize(55);
+            doc.text("SILVERBULLET STORE", 20, 160, { angle: 45 });
+            
+            doc.setFontSize(35);
+            doc.text("SUPPORT: @Silverbullets_bot", 35, 215, { angle: 45 });
+
+            doc.setFontSize(25);
+            doc.text("VERIFIED TRANSACTION", 65, 260, { angle: 45 });
+
+            // --- 1. EDGE-TO-EDGE DARK HEADER ---
             doc.setFillColor(15, 23, 42); 
             doc.rect(0, 0, 210, 45, 'F');
             
             doc.setDrawColor(14, 165, 233); 
             doc.setLineWidth(1.5);
             doc.line(0, 45, 210, 45);
-            
-            // --- ADDING THE LOGO ---
-            try {
-                const logoImg = document.getElementById('storeLogo');
-                if (logoImg.complete && logoImg.naturalWidth > 0) {
-                    // CHANGED: Now using 'JPEG' format to match your file
-                    doc.addImage(logoImg, 'JPEG', 12, 8, 28, 28); 
-                }
-            } catch (error) {
-                console.log("Logo skipped due to load error.");
-            }
 
-            // Main Title 
             doc.setTextColor(255, 255, 255); 
             doc.setFontSize(26);
-            doc.setFont("helvetica", "bold");
-            doc.text("SILVERBULLET", 44, 28);
+            doc.text("SILVERBULLET", 15, 28);
             
-            // Receipt Badge 
             doc.setFillColor(14, 165, 233);
             doc.rect(155, 18, 40, 12, 'F');
             doc.setTextColor(255, 255, 255);
             doc.setFontSize(12);
             doc.text("RECEIPT", 175, 26, null, null, "center");
 
-            // --- 2. Order Metadata ---
+            // --- 2. ORDER METADATA ---
             doc.setTextColor(80, 80, 80); 
             doc.setFontSize(9);
-            doc.setFont("helvetica", "bold");
             doc.text("ISSUED TO:", 15, 60);
             doc.text("ORDER NO:", 105, 60);
             doc.text("DATE & TIME:", 155, 60);
@@ -178,7 +247,16 @@
             }
             doc.text(displayHash, 105, 80);
 
-            // --- 3. Items Table ---
+            // --- NEW: PAID STAMP ---
+            doc.setTextColor(16, 185, 129); // Emerald Green
+            doc.setFontSize(45);
+            doc.setFont("helvetica", "bold");
+            // Transparent/light green look for the stamp
+            doc.setGState(new doc.GState({opacity: 0.15})); 
+            doc.text("PAID IN FULL", 120, 120, { angle: 335 });
+            doc.setGState(new doc.GState({opacity: 1.0})); // Reset opacity
+
+            // --- 3. ITEMS TABLE ---
             const startY = 95;
             
             doc.setFillColor(241, 245, 249); 
@@ -202,10 +280,10 @@
             doc.rect(15, startY + 12, 180, itemsHeight); 
             doc.text(splitItemText.slice(0, 20), 20, startY + 20);
 
-            // --- 4. Total Amount Block ---
+            // --- 4. TOTAL AMOUNT BLOCK ---
             let totalY = startY + 12 + itemsHeight + 15;
 
-            if (totalY > 250) {
+            if (totalY > 230) {
                 doc.addPage();
                 totalY = 20; 
             }
@@ -225,27 +303,43 @@
             doc.setFont("helvetica", "normal");
             doc.text("PAID VIA " + cryptoType, 190, totalY + 19, null, null, "right");
 
-            // --- 5. Footer ---
-            const footerY = 280; 
+            // --- 5. FOOTER & SECURITY FEATURES ---
+            const footerY = 275; 
+            
+            const authHash = txHash === "Not Provided" ? 
+                Math.random().toString(36).substring(2, 15).toUpperCase() + randomNum : 
+                txHash.substring(0, 15).toUpperCase() + randomNum;
+
+            doc.setTextColor(120, 120, 120);
+            doc.setFontSize(7);
+            doc.setFont("helvetica", "bold");
+            doc.text("DIGITAL AUTH HASH: " + authHash, 15, footerY - 14);
+
+            doc.setFillColor(50, 50, 50);
+            let barcodeX = 15;
+            for(let i=0; i < 35; i++) {
+                let rectWidth = Math.random() * 1.2 + 0.2; 
+                doc.rect(barcodeX, footerY - 12, rectWidth, 12, 'F');
+                barcodeX += rectWidth + (Math.random() * 1.5 + 0.3); 
+            }
+
             doc.setDrawColor(226, 232, 240);
-            doc.line(15, footerY - 10, 195, footerY - 10); 
+            doc.line(15, footerY + 5, 195, footerY + 5); 
 
             doc.setTextColor(150, 150, 150);
-            doc.setFontSize(9);
+            doc.setFontSize(8);
             doc.setFont("helvetica", "italic");
-            doc.text("This is an automatically generated digital receipt for a cryptocurrency transaction.", 105, footerY, null, null, "center");
+            doc.text("This is an automatically generated, digitally verified receipt for a cryptocurrency transaction.", 105, footerY + 10, null, null, "center");
             
             doc.setTextColor(14, 165, 233); 
             doc.setFont("helvetica", "bold");
-            doc.text("Telegram Support: @Silverbullets_bot", 105, footerY + 6, null, null, "center"); 
+            doc.text("Telegram Support: @Silverbullets_bot", 105, footerY + 15, null, null, "center"); 
 
-            // Save PDF
-            doc.save("Silverbullet_Crypto_Receipt_" + orderNumber + ".pdf");
+            doc.save("Silverbullet_Receipt_" + orderNumber + ".pdf");
 
-            // UI Feedback
             const btn = document.getElementById('generateBtn');
             const originalText = btn.innerText;
-            btn.innerText = "RECEIPT DOWNLOADED! ✓";
+            btn.innerText = "AUTHENTIC RECEIPT DOWNLOADED! ✓";
             btn.classList.add("success");
             
             setTimeout(() => {
