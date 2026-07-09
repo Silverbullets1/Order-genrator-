@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Silverbullet Premium PDF</title>
+    <title>Silverbullet Premium PDF - Crypto Edition</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     
     <style>
@@ -33,6 +33,9 @@
             transition: all 0.3s;
         }
         input:focus { outline: none; border-color: #38bdf8; box-shadow: 0 0 10px rgba(56, 189, 248, 0.2); }
+        
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+
         button { 
             width: 100%; 
             padding: 16px; 
@@ -46,49 +49,76 @@
             margin-top: 15px;
             text-transform: uppercase;
             letter-spacing: 1.5px;
-            transition: opacity 0.2s;
+            transition: all 0.3s;
         }
-        button:hover { opacity: 0.9; }
+        button:hover { opacity: 0.9; transform: translateY(-1px); }
+        button.success { background: linear-gradient(135deg, #10b981, #059669); }
     </style>
 </head>
 <body>
 
-    <img id="storeLogo" src="logo.png" style="visibility: hidden; position: absolute; width: 1px; height: 1px;" crossorigin="anonymous">
+    <img id="storeLogo" src="logo.jpg" style="visibility: hidden; position: absolute; width: 1px; height: 1px;" crossorigin="anonymous">
 
     <h2>SILVERBULLET</h2>
 
-    <div class="form-group">
-        <label for="buyerName">Buyer Name</label>
-        <input type="text" id="buyerName" placeholder="e.g. FalconAccount_store">
-    </div>
+    <form id="receiptForm">
+        <div class="form-group">
+            <label for="buyerName">Buyer Name / Handle</label>
+            <input type="text" id="buyerName" placeholder="e.g. FalconAccount_store" required>
+        </div>
 
-    <div class="form-group">
-        <label for="itemName">Items Purchased</label>
-        <input type="text" id="itemName" placeholder="e.g. Gmail, x10 Twitter...">
-    </div>
+        <div class="form-group">
+            <label for="itemName">Items Purchased</label>
+            <input type="text" id="itemName" placeholder="e.g. x10 Premium Accounts" required>
+        </div>
 
-    <div class="form-group">
-        <label for="amount">Total Amount ($)</label>
-        <input type="text" id="amount" placeholder="e.g. 100">
-    </div>
+        <div class="grid-2">
+            <div class="form-group">
+                <label for="amount">Total USD ($)</label>
+                <input type="number" id="amount" placeholder="e.g. 150.00" step="0.01" min="0" required>
+            </div>
+            <div class="form-group">
+                <label for="cryptoType">Crypto Used</label>
+                <input type="text" id="cryptoType" placeholder="e.g. USDT (TRC20)" required>
+            </div>
+        </div>
 
-    <button onclick="generatePDF()">Generate Premium Receipt</button>
+        <div class="form-group">
+            <label for="txHash">Transaction Hash (Optional)</label>
+            <input type="text" id="txHash" placeholder="Paste TxID here...">
+        </div>
+
+        <button type="submit" id="generateBtn">Generate Crypto Receipt</button>
+    </form>
 
     <script>
+        document.getElementById('receiptForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            generatePDF();
+        });
+
         function generatePDF() {
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF();
 
-            const buyerName = document.getElementById('buyerName').value || "Valued Customer";
-            const itemName = document.getElementById('itemName').value || "Digital Item";
-            const amount = document.getElementById('amount').value || "0.00";
+            const buyerName = document.getElementById('buyerName').value.trim();
+            const itemName = document.getElementById('itemName').value.trim();
+            const rawAmount = document.getElementById('amount').value;
+            const cryptoType = document.getElementById('cryptoType').value.trim().toUpperCase();
+            let txHash = document.getElementById('txHash').value.trim();
+            
+            if (!txHash) txHash = "Not Provided";
+
+            let cleanAmount = parseFloat(rawAmount).toFixed(2);
+            if (isNaN(cleanAmount)) cleanAmount = "0.00";
 
             const randomNum = Math.floor(100000 + Math.random() * 900000);
             const orderNumber = "ORD-" + randomNum;
             
             const today = new Date();
-            const dateString = today.toLocaleDateString();
-            const timeString = today.toLocaleTimeString();
+            const options = { year: 'numeric', month: 'short', day: '2-digit' };
+            const dateString = today.toLocaleDateString('en-US', options); 
+            const timeString = today.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
 
             // --- 1. Edge-to-Edge Dark Header ---
             doc.setFillColor(15, 23, 42); 
@@ -98,18 +128,18 @@
             doc.setLineWidth(1.5);
             doc.line(0, 45, 210, 45);
             
-            // --- ADDING THE LOGO (WITH SAFETY NET) ---
+            // --- ADDING THE LOGO ---
             try {
                 const logoImg = document.getElementById('storeLogo');
-                // Only try to draw the image if it actually loaded properly
                 if (logoImg.complete && logoImg.naturalWidth > 0) {
-                    doc.addImage(logoImg, 'PNG', 12, 8, 28, 28); 
+                    // CHANGED: Now using 'JPEG' format to match your file
+                    doc.addImage(logoImg, 'JPEG', 12, 8, 28, 28); 
                 }
             } catch (error) {
-                console.log("Logo skipped: Make sure the file is exactly named 'logo.png'");
+                console.log("Logo skipped due to load error.");
             }
 
-            // "SILVERBULLET" Main Title 
+            // Main Title 
             doc.setTextColor(255, 255, 255); 
             doc.setFontSize(26);
             doc.setFont("helvetica", "bold");
@@ -120,26 +150,36 @@
             doc.rect(155, 18, 40, 12, 'F');
             doc.setTextColor(255, 255, 255);
             doc.setFontSize(12);
-            doc.setFont("helvetica", "bold");
             doc.text("RECEIPT", 175, 26, null, null, "center");
 
             // --- 2. Order Metadata ---
             doc.setTextColor(80, 80, 80); 
-            doc.setFontSize(10);
+            doc.setFontSize(9);
             doc.setFont("helvetica", "bold");
-            doc.text("ISSUED TO:", 15, 65);
-            doc.text("ORDER NO:", 110, 65);
-            doc.text("DATE & TIME:", 160, 65);
+            doc.text("ISSUED TO:", 15, 60);
+            doc.text("ORDER NO:", 105, 60);
+            doc.text("DATE & TIME:", 155, 60);
+            
+            doc.text("PAYMENT METHOD:", 15, 75);
+            doc.text("TRANSACTION HASH (TXID):", 105, 75);
 
             doc.setTextColor(20, 20, 20); 
-            doc.setFontSize(12);
+            doc.setFontSize(11);
             doc.setFont("helvetica", "normal");
-            doc.text(buyerName, 15, 72);
-            doc.text(orderNumber, 110, 72);
-            doc.text(`${dateString} ${timeString}`, 160, 72);
+            doc.text(buyerName, 15, 65);
+            doc.text(orderNumber, 105, 65);
+            doc.text(`${dateString} ${timeString}`, 155, 65);
+            
+            doc.text(cryptoType, 15, 80);
+            
+            let displayHash = txHash;
+            if (displayHash.length > 35) {
+                displayHash = displayHash.substring(0, 32) + "...";
+            }
+            doc.text(displayHash, 105, 80);
 
             // --- 3. Items Table ---
-            const startY = 90;
+            const startY = 95;
             
             doc.setFillColor(241, 245, 249); 
             doc.rect(15, startY, 180, 12, 'F');
@@ -154,40 +194,64 @@
             doc.setFont("helvetica", "normal");
             const splitItemText = doc.splitTextToSize(itemName, 170); 
             
-            const itemsHeight = (splitItemText.length * 6) + 10;
+            let itemsHeight = (splitItemText.length * 6) + 10;
+            if(itemsHeight > 130) itemsHeight = 130; 
+
             doc.setDrawColor(226, 232, 240); 
             doc.setLineWidth(0.5);
             doc.rect(15, startY + 12, 180, itemsHeight); 
-            
-            doc.text(splitItemText, 20, startY + 20);
+            doc.text(splitItemText.slice(0, 20), 20, startY + 20);
 
             // --- 4. Total Amount Block ---
-            const totalY = startY + 12 + itemsHeight + 15;
+            let totalY = startY + 12 + itemsHeight + 15;
+
+            if (totalY > 250) {
+                doc.addPage();
+                totalY = 20; 
+            }
 
             doc.setFillColor(14, 165, 233); 
-            doc.rect(125, totalY, 70, 20, 'F');
+            doc.rect(120, totalY, 75, 22, 'F');
             
             doc.setTextColor(255, 255, 255);
-            doc.setFontSize(14);
+            doc.setFontSize(10);
             doc.setFont("helvetica", "bold");
-            doc.text("TOTAL PAID:", 135, totalY + 13);
-            doc.text("$" + amount, 190, totalY + 13, null, null, "right");
+            doc.text("TOTAL (USD equivalent):", 125, totalY + 8);
+            
+            doc.setFontSize(14);
+            doc.text("$" + cleanAmount, 190, totalY + 15, null, null, "right");
+            
+            doc.setFontSize(8);
+            doc.setFont("helvetica", "normal");
+            doc.text("PAID VIA " + cryptoType, 190, totalY + 19, null, null, "right");
 
             // --- 5. Footer ---
-            const footerY = 270;
+            const footerY = 280; 
             doc.setDrawColor(226, 232, 240);
             doc.line(15, footerY - 10, 195, footerY - 10); 
 
             doc.setTextColor(150, 150, 150);
             doc.setFontSize(9);
             doc.setFont("helvetica", "italic");
-            doc.text("This is an automatically generated digital receipt.", 105, footerY, null, null, "center");
+            doc.text("This is an automatically generated digital receipt for a cryptocurrency transaction.", 105, footerY, null, null, "center");
             
             doc.setTextColor(14, 165, 233); 
             doc.setFont("helvetica", "bold");
             doc.text("Telegram Support: @Silverbullets_bot", 105, footerY + 6, null, null, "center"); 
 
-            doc.save("Silverbullet_Receipt_" + orderNumber + ".pdf");
+            // Save PDF
+            doc.save("Silverbullet_Crypto_Receipt_" + orderNumber + ".pdf");
+
+            // UI Feedback
+            const btn = document.getElementById('generateBtn');
+            const originalText = btn.innerText;
+            btn.innerText = "RECEIPT DOWNLOADED! ✓";
+            btn.classList.add("success");
+            
+            setTimeout(() => {
+                btn.innerText = originalText;
+                btn.classList.remove("success");
+            }, 2500);
         }
     </script>
 </body>
