@@ -169,7 +169,6 @@
             const today = new Date();
             const options = { year: 'numeric', month: 'short', day: '2-digit' };
             const dateString = today.toLocaleDateString('en-US', options); 
-            const timeString = today.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
 
             // --- 0. BACKGROUND WATERMARK ---
             doc.setTextColor(247, 249, 251); 
@@ -216,13 +215,11 @@
             doc.setFontSize(9);
             doc.text("RECEIPT NO:", 120, 70);
             doc.text("DATE:", 120, 78);
-            doc.text("TIME:", 120, 86);
 
             doc.setTextColor(30, 30, 30); 
             doc.setFontSize(10);
             doc.text(orderNumber, 150, 70);
             doc.text(dateString, 150, 78);
-            doc.text(timeString, 150, 86);
 
             // --- 3. HIGH-CONTRAST ITEMS TABLE ---
             const startY = 105;
@@ -308,7 +305,7 @@
             let barcodeX = 15;
             for(let i=0; i < 30; i++) {
                 let rectWidth = Math.random() * 1.5 + 0.3; 
-                doc.rect(barcodeX, footerY - 8, rectWidth, 10, 'F');
+                doc.rect(barcodeX, footerY - 12, rectWidth, 10, 'F'); // Lifted slightly to fix overlap
                 barcodeX += rectWidth + (Math.random() * 2 + 0.5); 
             }
 
@@ -323,12 +320,10 @@
             
             let tgText = "Telegram Support: @Silverbullets_bot";
             let tgWidth = doc.getTextWidth(tgText);
-            let tgX = 105 - (tgWidth / 2); // Centers the clickable area perfectly
+            let tgX = 105 - (tgWidth / 2);
             
-            // Create the hyperlink
             doc.textWithLink(tgText, tgX, footerY + 5, { url: 'https://t.me/Silverbullets_bot' });
             
-            // Draw a subtle underline so it looks like a link
             doc.setDrawColor(14, 165, 233);
             doc.setLineWidth(0.2);
             doc.line(tgX, footerY + 6, tgX + tgWidth, footerY + 6);
