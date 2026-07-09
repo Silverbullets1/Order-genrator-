@@ -170,12 +170,23 @@
             const options = { year: 'numeric', month: 'short', day: '2-digit' };
             const dateString = today.toLocaleDateString('en-US', options); 
 
-            // --- 0. BACKGROUND WATERMARK ---
-            doc.setTextColor(247, 249, 251); 
-            doc.setFontSize(65);
+            // --- 0. BACKGROUND WATERMARK (PROFESSIONAL CORPORATE STYLE) ---
+            // Set graphic opacity to 5% for a subtle, high-end authentic watermark
+            doc.setGState(new doc.GState({opacity: 0.05})); 
+            doc.setTextColor(15, 23, 42); // Brand slate color
+            
+            // Perfectly centered main watermark text
+            doc.setFontSize(75);
             doc.setFont("helvetica", "bold");
-            doc.text("SILVERBULLET", 25, 160, { angle: 45 });
-            doc.text("PAID IN FULL", 55, 230, { angle: 45 });
+            doc.text("SILVERBULLET", 105, 140, { angle: 45, align: "center" });
+            
+            // Subtitle watermark text
+            doc.setFontSize(22);
+            doc.setFont("helvetica", "normal");
+            doc.text("VERIFIED SECURE TRANSACTION", 105, 155, { angle: 45, align: "center" });
+
+            // Restore full opacity for the rest of the document
+            doc.setGState(new doc.GState({opacity: 1.0}));
 
             // --- 1. PREMIUM HEADER ---
             doc.setFillColor(15, 23, 42); 
@@ -299,22 +310,21 @@
             doc.text("$" + cleanAmount, 190, totalY + 18, null, null, "right");
 
             // --- 6. FOOTER / SECURITY BARCODE / CLICKABLE LINK ---
-            const footerY = 280; 
+            const footerY = 265; 
 
             doc.setFillColor(50, 50, 50);
             let barcodeX = 15;
             for(let i=0; i < 30; i++) {
                 let rectWidth = Math.random() * 1.5 + 0.3; 
-                doc.rect(barcodeX, footerY - 12, rectWidth, 10, 'F'); // Lifted slightly to fix overlap
+                doc.rect(barcodeX, footerY - 15, rectWidth, 10, 'F'); 
                 barcodeX += rectWidth + (Math.random() * 2 + 0.5); 
             }
 
             doc.setTextColor(150, 150, 150);
             doc.setFontSize(8);
             doc.setFont("helvetica", "italic");
-            doc.text("Official Digital Receipt generated automatically.", 105, footerY, null, null, "center");
+            doc.text("Official Digital Receipt generated automatically.", 105, footerY + 2, null, null, "center");
             
-            // Adding the Clickable Telegram Hyperlink
             doc.setTextColor(14, 165, 233); 
             doc.setFont("helvetica", "bold");
             
@@ -322,11 +332,11 @@
             let tgWidth = doc.getTextWidth(tgText);
             let tgX = 105 - (tgWidth / 2);
             
-            doc.textWithLink(tgText, tgX, footerY + 5, { url: 'https://t.me/Silverbullets_bot' });
+            doc.textWithLink(tgText, tgX, footerY + 8, { url: 'https://t.me/Silverbullets_bot' });
             
             doc.setDrawColor(14, 165, 233);
             doc.setLineWidth(0.2);
-            doc.line(tgX, footerY + 6, tgX + tgWidth, footerY + 6);
+            doc.line(tgX, footerY + 9, tgX + tgWidth, footerY + 9);
 
             // Trigger Download
             doc.save("Silverbullet_Receipt_" + orderNumber + ".pdf");
