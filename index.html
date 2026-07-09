@@ -243,11 +243,11 @@
             // Draw Security Text layered OVER the image watermark
             doc.setTextColor(15, 23, 42); 
             doc.setFontSize(22);
-            doc.setFont("helvetica", "normal");
+            doc.setFont("helvetica", "bold");
             
             doc.text("SUPPORT: @Silverbullets_bot", 65, 85, { angle: 45, align: "center" });
             
-            let subWatermark = isReplacement ? "REPLACEMENT ISSUED" : "VERIFIED SECURE TRANSACTION";
+            let subWatermark = isReplacement ? "SILVERBULLET STORE - REPLACEMENT" : "SILVERBULLET STORE";
             doc.text(subWatermark, 145, 205, { angle: 45, align: "center" });
 
             // Restore full opacity for the rest of the document data
