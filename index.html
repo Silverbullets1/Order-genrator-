@@ -33,6 +33,12 @@
             color: var(--text-main);
         }
 
+        /* Added smooth entrance animation */
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
         .container {
             width: 100%;
             max-width: 480px; 
@@ -41,9 +47,10 @@
             -webkit-backdrop-filter: blur(16px);
             padding: 40px 30px;
             border-radius: 20px;
-            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5);
-            border: 1px solid rgba(255,255,255,0.08);
+            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5), inset 0 1px 1px rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.05);
             box-sizing: border-box;
+            animation: fadeUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         }
 
         h2 { 
@@ -68,7 +75,7 @@
             letter-spacing: 1px;
         }
 
-        input { 
+        input[type="text"], input[type="number"] { 
             width: 100%; 
             padding: 15px; 
             box-sizing: border-box; 
@@ -81,7 +88,7 @@
             transition: all 0.3s ease;
         }
 
-        input:focus { 
+        input[type="text"]:focus, input[type="number"]:focus { 
             outline: none; 
             border-color: var(--primary); 
             background-color: rgba(0,0,0,0.4);
@@ -89,6 +96,39 @@
         }
         
         .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+
+        .checkbox-wrapper {
+            display: flex;
+            align-items: center;
+            background: rgba(0,0,0,0.2);
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid rgba(255,255,255,0.05);
+            margin-bottom: 22px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .checkbox-wrapper:hover {
+            background: rgba(0,0,0,0.3);
+            border-color: rgba(14, 165, 233, 0.3);
+        }
+
+        .checkbox-wrapper input[type="checkbox"] {
+            margin-right: 12px;
+            width: 18px;
+            height: 18px;
+            accent-color: #f59e0b; 
+            cursor: pointer;
+        }
+
+        .checkbox-wrapper label {
+            margin-bottom: 0;
+            cursor: pointer;
+            color: var(--text-main);
+            font-size: 14px;
+            font-weight: 600;
+        }
 
         button { 
             width: 100%; 
@@ -100,17 +140,18 @@
             font-weight: 700;
             border-radius: 8px;
             cursor: pointer; 
-            margin-top: 10px;
+            margin-top: 5px;
             text-transform: uppercase;
             letter-spacing: 2px;
-            box-shadow: 0 10px 20px -10px rgba(14, 165, 233, 0.5);
+            box-shadow: 0 10px 20px -10px rgba(14, 165, 233, 0.6);
             transition: all 0.3s ease;
         }
 
         button:hover { 
             transform: translateY(-3px); 
-            box-shadow: 0 15px 25px -10px rgba(14, 165, 233, 0.6);
+            box-shadow: 0 15px 25px -10px rgba(14, 165, 233, 0.8);
         }
+        button:active { transform: translateY(0); }
         button.success { background: linear-gradient(135deg, #10b981, #059669); }
     </style>
 </head>
@@ -133,13 +174,18 @@
             <div class="grid-2">
                 <div class="form-group">
                     <label for="amount">Total USD ($)</label>
-                    <input type="number" id="amount" placeholder="e.g. 100.00" step="0.01" min="0" required>
+                    <input type="number" id="amount" placeholder="e.g. 100.00" step="0.01" min="0" required onblur="this.value = parseFloat(this.value || 0).toFixed(2)">
                 </div>
                 <div class="form-group">
                     <label for="cryptoType">Crypto Network</label>
                     <input type="text" id="cryptoType" placeholder="e.g. USDT (BEP20)" required>
                 </div>
             </div>
+
+            <label class="checkbox-wrapper">
+                <input type="checkbox" id="isReplacement">
+                <label for="isReplacement">Issue as Replacement Order</label>
+            </label>
 
             <button type="submit" id="generateBtn">Generate Elite Receipt</button>
         </form>
@@ -159,6 +205,8 @@
             const itemName = document.getElementById('itemName').value.trim();
             const rawAmount = document.getElementById('amount').value;
             const cryptoType = document.getElementById('cryptoType').value.trim().toUpperCase();
+            
+            const isReplacement = document.getElementById('isReplacement').checked;
 
             let cleanAmount = parseFloat(rawAmount).toFixed(2);
             if (isNaN(cleanAmount)) cleanAmount = "0.00";
@@ -170,22 +218,20 @@
             const options = { year: 'numeric', month: 'short', day: '2-digit' };
             const dateString = today.toLocaleDateString('en-US', options); 
 
-            // --- 0. BACKGROUND WATERMARK (PROFESSIONAL CORPORATE STYLE) ---
-            // Set graphic opacity to 5% for a subtle, high-end authentic watermark
-            doc.setGState(new doc.GState({opacity: 0.05})); 
-            doc.setTextColor(15, 23, 42); // Brand slate color
+            // --- 0. BACKGROUND WATERMARK ---
+            doc.setGState(new doc.GState({opacity: 0.04})); 
+            doc.setTextColor(15, 23, 42); 
             
-            // Perfectly centered main watermark text
             doc.setFontSize(75);
             doc.setFont("helvetica", "bold");
             doc.text("SILVERBULLET", 105, 140, { angle: 45, align: "center" });
             
-            // Subtitle watermark text
             doc.setFontSize(22);
             doc.setFont("helvetica", "normal");
-            doc.text("VERIFIED SECURE TRANSACTION", 105, 155, { angle: 45, align: "center" });
+            
+            let subWatermark = isReplacement ? "REPLACEMENT ISSUED" : "VERIFIED SECURE TRANSACTION";
+            doc.text(subWatermark, 105, 155, { angle: 45, align: "center" });
 
-            // Restore full opacity for the rest of the document
             doc.setGState(new doc.GState({opacity: 1.0}));
 
             // --- 1. PREMIUM HEADER ---
@@ -201,11 +247,20 @@
             doc.setFont("helvetica", "bold");
             doc.text("SILVERBULLET", 15, 32);
             
-            doc.setFillColor(16, 185, 129); 
-            doc.rect(160, 22, 35, 12, 'F');
-            doc.setTextColor(255, 255, 255);
-            doc.setFontSize(11);
-            doc.text("PAID", 177.5, 30, null, null, "center");
+            // UI Polish: Rounded corners on badges
+            if (isReplacement) {
+                doc.setFillColor(245, 158, 11); 
+                doc.roundedRect(145, 22, 50, 12, 1.5, 1.5, 'F');
+                doc.setTextColor(255, 255, 255);
+                doc.setFontSize(10);
+                doc.text("REPLACEMENT", 170, 30, null, null, "center");
+            } else {
+                doc.setFillColor(16, 185, 129); 
+                doc.roundedRect(160, 22, 35, 12, 1.5, 1.5, 'F');
+                doc.setTextColor(255, 255, 255);
+                doc.setFontSize(11);
+                doc.text("PAID", 177.5, 30, null, null, "center");
+            }
 
             // --- 2. INVOICE METADATA ---
             doc.setDrawColor(226, 232, 240);
@@ -231,6 +286,11 @@
             doc.setFontSize(10);
             doc.text(orderNumber, 150, 70);
             doc.text(dateString, 150, 78);
+
+            // Subtle dotted separator
+            doc.setLineDash([1, 1.5], 0);
+            doc.line(15, 93, 195, 93);
+            doc.setLineDash([]); // reset
 
             // --- 3. HIGH-CONTRAST ITEMS TABLE ---
             const startY = 105;
@@ -258,7 +318,7 @@
             doc.setFont("helvetica", "bold");
             doc.text("$" + cleanAmount, 185, startY + 22, null, null, "right");
 
-            // --- 4. PAYMENT METHOD & QR CODE ---
+            // --- 4. PAYMENT METHOD & DENSER QR CODE ---
             let totalY = startY + 12 + itemsHeight + 15;
             if (totalY > 230) {
                 doc.addPage();
@@ -267,50 +327,65 @@
 
             let qrX = 15;
             let qrY = totalY;
-            let qrSize = 24;
-            let boxSize = qrSize / 15;
+            let qrSize = 25;
+            let qrGrid = 22; // UI Polish: Increased grid density for realism
+            let boxSize = qrSize / qrGrid;
             
             doc.setFillColor(30, 30, 30);
-            for(let i=0; i<15; i++) {
-                for(let j=0; j<15; j++) {
+            for(let i=0; i<qrGrid; i++) {
+                for(let j=0; j<qrGrid; j++) {
                     if (Math.random() > 0.45) {
                         doc.rect(qrX + (i*boxSize), qrY + (j*boxSize), boxSize, boxSize, 'F');
                     }
                 }
             }
-            doc.setFillColor(255,255,255); doc.rect(qrX, qrY, boxSize*4, boxSize*4, 'F');
-            doc.setFillColor(30,30,30); doc.rect(qrX, qrY, boxSize*4, boxSize*4, 'S'); doc.rect(qrX+boxSize, qrY+boxSize, boxSize*2, boxSize*2, 'F');
+            // QR Anchors
+            let anchorSize = 5;
+            doc.setFillColor(255,255,255); doc.rect(qrX, qrY, boxSize*anchorSize, boxSize*anchorSize, 'F');
+            doc.setFillColor(30,30,30); doc.rect(qrX, qrY, boxSize*anchorSize, boxSize*anchorSize, 'S'); doc.rect(qrX+boxSize, qrY+boxSize, boxSize*(anchorSize-2), boxSize*(anchorSize-2), 'F');
             
-            doc.setFillColor(255,255,255); doc.rect(qrX+qrSize-boxSize*4, qrY, boxSize*4, boxSize*4, 'F');
-            doc.setFillColor(30,30,30); doc.rect(qrX+qrSize-boxSize*4, qrY, boxSize*4, boxSize*4, 'S'); doc.rect(qrX+qrSize-boxSize*3, qrY+boxSize, boxSize*2, boxSize*2, 'F');
+            doc.setFillColor(255,255,255); doc.rect(qrX+qrSize-boxSize*anchorSize, qrY, boxSize*anchorSize, boxSize*anchorSize, 'F');
+            doc.setFillColor(30,30,30); doc.rect(qrX+qrSize-boxSize*anchorSize, qrY, boxSize*anchorSize, boxSize*anchorSize, 'S'); doc.rect(qrX+qrSize-boxSize*(anchorSize-1), qrY+boxSize, boxSize*(anchorSize-2), boxSize*(anchorSize-2), 'F');
             
-            doc.setFillColor(255,255,255); doc.rect(qrX, qrY+qrSize-boxSize*4, boxSize*4, boxSize*4, 'F');
-            doc.setFillColor(30,30,30); doc.rect(qrX, qrY+qrSize-boxSize*4, boxSize*4, boxSize*4, 'S'); doc.rect(qrX+boxSize, qrY+qrSize-boxSize*3, boxSize*2, boxSize*2, 'F');
+            doc.setFillColor(255,255,255); doc.rect(qrX, qrY+qrSize-boxSize*anchorSize, boxSize*anchorSize, boxSize*anchorSize, 'F');
+            doc.setFillColor(30,30,30); doc.rect(qrX, qrY+qrSize-boxSize*anchorSize, boxSize*anchorSize, boxSize*anchorSize, 'S'); doc.rect(qrX+boxSize, qrY+qrSize-boxSize*(anchorSize-1), boxSize*(anchorSize-2), boxSize*(anchorSize-2), 'F');
 
             doc.setTextColor(120, 120, 120);
             doc.setFontSize(8);
-            doc.text("PAYMENT VERIFIED VIA", 45, totalY + 8);
+            doc.text("PAYMENT VERIFIED VIA", 48, totalY + 8);
             
             doc.setTextColor(14, 165, 233);
             doc.setFontSize(12);
             doc.setFont("helvetica", "bold");
-            doc.text(cryptoType, 45, totalY + 15);
+            doc.text(cryptoType, 48, totalY + 15);
 
             // --- 5. TOTAL BLOCK ---
             doc.setFillColor(15, 23, 42); 
-            doc.rect(120, totalY, 75, 26, 'F');
+            // UI Polish: Smooth rounded corners on the total box
+            doc.roundedRect(120, totalY, 75, 26, 2, 2, 'F');
             
             doc.setTextColor(255, 255, 255);
             doc.setFontSize(10);
             doc.setFont("helvetica", "normal");
-            doc.text("TOTAL PAID", 125, totalY + 10);
+            
+            let totalText = isReplacement ? "REPLACEMENT VALUE" : "TOTAL PAID";
+            doc.text(totalText, 125, totalY + 10);
             
             doc.setFontSize(16);
             doc.setFont("helvetica", "bold");
             doc.text("$" + cleanAmount, 190, totalY + 18, null, null, "right");
 
-            // --- 6. FOOTER / SECURITY BARCODE / CLICKABLE LINK ---
+            // --- 6. TERMS, FOOTER & SECURITY BARCODE ---
             const footerY = 265; 
+
+            doc.setTextColor(120, 120, 120);
+            doc.setFontSize(7);
+            doc.setFont("helvetica", "normal");
+            
+            let termsText = isReplacement ? 
+                "TERMS: This document serves as proof of a replacement for a previously verified digital order." : 
+                "TERMS: All digital sales are final. No refunds on delivered digital goods.";
+            doc.text(termsText, 15, footerY - 20);
 
             doc.setFillColor(50, 50, 50);
             let barcodeX = 15;
@@ -338,13 +413,12 @@
             doc.setLineWidth(0.2);
             doc.line(tgX, footerY + 9, tgX + tgWidth, footerY + 9);
 
-            // Trigger Download
-            doc.save("Silverbullet_Receipt_" + orderNumber + ".pdf");
+            const fileNamePrefix = isReplacement ? "Silverbullet_Replacement_" : "Silverbullet_Receipt_";
+            doc.save(fileNamePrefix + orderNumber + ".pdf");
 
-            // UI Feedback
             const btn = document.getElementById('generateBtn');
             const originalText = btn.innerText;
-            btn.innerText = "ELITE RECEIPT DOWNLOADED! ✓";
+            btn.innerText = "PDF DOWNLOADED! ✓";
             btn.classList.add("success");
             
             setTimeout(() => {
