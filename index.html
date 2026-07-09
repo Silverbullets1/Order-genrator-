@@ -53,7 +53,7 @@
 </head>
 <body>
 
-    <img id="storeLogo" src="logo.png" style="display:none;" crossorigin="anonymous">
+    <img id="storeLogo" src="logo.png" style="visibility: hidden; position: absolute; width: 1px; height: 1px;" crossorigin="anonymous">
 
     <h2>SILVERBULLET</h2>
 
@@ -98,9 +98,16 @@
             doc.setLineWidth(1.5);
             doc.line(0, 45, 210, 45);
             
-            // --- ADDING THE LOGO ---
-            const logoImg = document.getElementById('storeLogo');
-            doc.addImage(logoImg, 'PNG', 12, 8, 28, 28); 
+            // --- ADDING THE LOGO (WITH SAFETY NET) ---
+            try {
+                const logoImg = document.getElementById('storeLogo');
+                // Only try to draw the image if it actually loaded properly
+                if (logoImg.complete && logoImg.naturalWidth > 0) {
+                    doc.addImage(logoImg, 'PNG', 12, 8, 28, 28); 
+                }
+            } catch (error) {
+                console.log("Logo skipped: Make sure the file is exactly named 'logo.png'");
+            }
 
             // "SILVERBULLET" Main Title 
             doc.setTextColor(255, 255, 255); 
@@ -178,7 +185,6 @@
             
             doc.setTextColor(14, 165, 233); 
             doc.setFont("helvetica", "bold");
-            // CHANGED LINE BELOW
             doc.text("Telegram Support: @Silverbullets_bot", 105, footerY + 6, null, null, "center"); 
 
             doc.save("Silverbullet_Receipt_" + orderNumber + ".pdf");
