@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Silverbullet Premium - Corporate Edition</title>
+    <title>Silverbullet Premium - Elite Edition</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;800&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     
@@ -121,32 +121,27 @@
 
         <form id="receiptForm">
             <div class="form-group">
-                <label for="buyerName">Buyer Name / Handle</label>
+                <label for="buyerName">Billed To (Name / Handle)</label>
                 <input type="text" id="buyerName" placeholder="e.g. FalconAccount_store" required>
             </div>
 
             <div class="form-group">
-                <label for="itemName">Items Purchased</label>
+                <label for="itemName">Item Description</label>
                 <input type="text" id="itemName" placeholder="e.g. x10 Premium Accounts" required>
             </div>
 
             <div class="grid-2">
                 <div class="form-group">
                     <label for="amount">Total USD ($)</label>
-                    <input type="number" id="amount" placeholder="e.g. 150.00" step="0.01" min="0" required>
+                    <input type="number" id="amount" placeholder="e.g. 100.00" step="0.01" min="0" required>
                 </div>
                 <div class="form-group">
-                    <label for="cryptoType">Crypto Used</label>
-                    <input type="text" id="cryptoType" placeholder="e.g. USDT (TRC20)" required>
+                    <label for="cryptoType">Crypto Network</label>
+                    <input type="text" id="cryptoType" placeholder="e.g. USDT (BEP20)" required>
                 </div>
             </div>
 
-            <div class="form-group">
-                <label for="txHash">Transaction Hash (Optional)</label>
-                <input type="text" id="txHash" placeholder="Paste TxID here...">
-            </div>
-
-            <button type="submit" id="generateBtn">Generate Professional Receipt</button>
+            <button type="submit" id="generateBtn">Generate Elite Receipt</button>
         </form>
     </div>
 
@@ -164,9 +159,6 @@
             const itemName = document.getElementById('itemName').value.trim();
             const rawAmount = document.getElementById('amount').value;
             const cryptoType = document.getElementById('cryptoType').value.trim().toUpperCase();
-            let txHash = document.getElementById('txHash').value.trim();
-            
-            if (!txHash) txHash = "N/A - Manual Verification Required";
 
             let cleanAmount = parseFloat(rawAmount).toFixed(2);
             if (isNaN(cleanAmount)) cleanAmount = "0.00";
@@ -180,27 +172,25 @@
             const timeString = today.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
 
             // --- 0. BACKGROUND WATERMARK ---
-            doc.setTextColor(245, 248, 250); 
-            doc.setFontSize(60);
+            doc.setTextColor(247, 249, 251); 
+            doc.setFontSize(65);
             doc.setFont("helvetica", "bold");
-            doc.text("SILVERBULLET", 30, 160, { angle: 45 });
-            doc.text("PAID IN FULL", 50, 220, { angle: 45 });
+            doc.text("SILVERBULLET", 25, 160, { angle: 45 });
+            doc.text("PAID IN FULL", 55, 230, { angle: 45 });
 
             // --- 1. PREMIUM HEADER ---
             doc.setFillColor(15, 23, 42); 
             doc.rect(0, 0, 210, 50, 'F');
             
-            // Cyan bottom border for header
             doc.setDrawColor(14, 165, 233); 
             doc.setLineWidth(1.5);
             doc.line(0, 50, 210, 50);
 
             doc.setTextColor(255, 255, 255); 
-            doc.setFontSize(26);
+            doc.setFontSize(28);
             doc.setFont("helvetica", "bold");
             doc.text("SILVERBULLET", 15, 32);
             
-            // Emerald Green "PAID" Badge
             doc.setFillColor(16, 185, 129); 
             doc.rect(160, 22, 35, 12, 'F');
             doc.setTextColor(255, 255, 255);
@@ -208,94 +198,99 @@
             doc.text("PAID", 177.5, 30, null, null, "center");
 
             // --- 2. INVOICE METADATA ---
-            // Left Column (Billed To)
-            doc.setTextColor(100, 100, 100); 
-            doc.setFontSize(10);
+            doc.setDrawColor(226, 232, 240);
+            doc.setLineWidth(0.5);
+            
+            doc.line(15, 65, 15, 85); 
+
+            doc.setTextColor(120, 120, 120); 
+            doc.setFontSize(9);
             doc.setFont("helvetica", "bold");
-            doc.text("BILLED TO:", 15, 65);
+            doc.text("BILLED TO:", 20, 70);
             
             doc.setTextColor(30, 30, 30); 
-            doc.setFontSize(14);
-            doc.text(buyerName, 15, 73);
+            doc.setFontSize(13);
+            doc.text(buyerName, 20, 78);
 
-            // Right Column (Order Info)
-            doc.setTextColor(100, 100, 100); 
+            doc.setTextColor(120, 120, 120); 
+            doc.setFontSize(9);
+            doc.text("RECEIPT NO:", 120, 70);
+            doc.text("DATE:", 120, 78);
+            doc.text("TIME:", 120, 86);
+
+            doc.setTextColor(30, 30, 30); 
             doc.setFontSize(10);
-            doc.text("RECEIPT NO:", 120, 65);
-            doc.text("DATE:", 120, 73);
-            doc.text("TIME:", 120, 81);
+            doc.text(orderNumber, 150, 70);
+            doc.text(dateString, 150, 78);
+            doc.text(timeString, 150, 86);
 
-            doc.setTextColor(30, 30, 30); 
-            doc.text(orderNumber, 150, 65);
-            doc.text(dateString, 150, 73);
-            doc.text(timeString, 150, 81);
-
-            // --- 3. ITEMS TABLE ---
-            const startY = 95;
+            // --- 3. HIGH-CONTRAST ITEMS TABLE ---
+            const startY = 105;
             
-            // Table Header Background
-            doc.setFillColor(241, 245, 249); 
-            doc.setDrawColor(226, 232, 240); 
-            doc.rect(15, startY, 180, 12, 'FD'); // Fill and Draw stroke
+            doc.setFillColor(15, 23, 42); 
+            doc.rect(15, startY, 180, 12, 'F'); 
             
-            doc.setTextColor(100, 100, 100);
+            doc.setTextColor(255, 255, 255);
             doc.setFontSize(10);
             doc.text("ITEM DESCRIPTION", 20, startY + 8);
             doc.text("AMOUNT", 185, startY + 8, null, null, "right");
 
-            // Table Body
-            const splitItemText = doc.splitTextToSize(itemName, 140); 
+            const splitItemText = doc.splitTextToSize(itemName, 130); 
             let itemsHeight = (splitItemText.length * 6) + 15;
-            if(itemsHeight > 100) itemsHeight = 100; 
+            if(itemsHeight > 90) itemsHeight = 90; 
 
-            doc.rect(15, startY + 12, 180, itemsHeight, 'S'); // Draw border only
+            doc.setDrawColor(200, 200, 200); 
+            doc.rect(15, startY + 12, 180, itemsHeight, 'S'); 
             
             doc.setTextColor(40, 40, 40);
             doc.setFontSize(11);
             doc.setFont("helvetica", "normal");
-            doc.text(splitItemText.slice(0, 15), 20, startY + 22);
+            doc.text(splitItemText.slice(0, 12), 20, startY + 22);
             
             doc.setFont("helvetica", "bold");
             doc.text("$" + cleanAmount, 185, startY + 22, null, null, "right");
 
-            // --- 4. CRYPTO VERIFICATION BOX ---
-            let paymentY = startY + 12 + itemsHeight + 10;
-
-            doc.setDrawColor(14, 165, 233); 
-            doc.setFillColor(248, 250, 252); 
-            doc.setLineWidth(0.5);
-            doc.rect(15, paymentY, 180, 30, 'FD');
-
-            doc.setTextColor(14, 165, 233);
-            doc.setFontSize(10);
-            doc.setFont("helvetica", "bold");
-            doc.text("PAYMENT VERIFIED VIA CRYPTOCURRENCY", 20, paymentY + 8);
-
-            doc.setTextColor(80, 80, 80);
-            doc.setFontSize(9);
-            doc.text("NETWORK / COIN:", 20, paymentY + 16);
-            doc.text("TRANSACTION ID:", 20, paymentY + 24);
-
-            doc.setTextColor(30, 30, 30);
-            doc.text(cryptoType, 55, paymentY + 16);
-            
-            let displayHash = txHash;
-            if (displayHash.length > 50) {
-                displayHash = displayHash.substring(0, 47) + "...";
-            }
-            doc.text(displayHash, 55, paymentY + 24);
-
-            // --- 5. TOTAL BLOCK ---
-            let totalY = paymentY + 45;
-
-            // Page break safety
-            if (totalY > 260) {
+            // --- 4. PAYMENT METHOD & QR CODE ---
+            let totalY = startY + 12 + itemsHeight + 15;
+            if (totalY > 230) {
                 doc.addPage();
                 totalY = 20; 
             }
 
+            let qrX = 15;
+            let qrY = totalY;
+            let qrSize = 24;
+            let boxSize = qrSize / 15;
+            
+            doc.setFillColor(30, 30, 30);
+            for(let i=0; i<15; i++) {
+                for(let j=0; j<15; j++) {
+                    if (Math.random() > 0.45) {
+                        doc.rect(qrX + (i*boxSize), qrY + (j*boxSize), boxSize, boxSize, 'F');
+                    }
+                }
+            }
+            doc.setFillColor(255,255,255); doc.rect(qrX, qrY, boxSize*4, boxSize*4, 'F');
+            doc.setFillColor(30,30,30); doc.rect(qrX, qrY, boxSize*4, boxSize*4, 'S'); doc.rect(qrX+boxSize, qrY+boxSize, boxSize*2, boxSize*2, 'F');
+            
+            doc.setFillColor(255,255,255); doc.rect(qrX+qrSize-boxSize*4, qrY, boxSize*4, boxSize*4, 'F');
+            doc.setFillColor(30,30,30); doc.rect(qrX+qrSize-boxSize*4, qrY, boxSize*4, boxSize*4, 'S'); doc.rect(qrX+qrSize-boxSize*3, qrY+boxSize, boxSize*2, boxSize*2, 'F');
+            
+            doc.setFillColor(255,255,255); doc.rect(qrX, qrY+qrSize-boxSize*4, boxSize*4, boxSize*4, 'F');
+            doc.setFillColor(30,30,30); doc.rect(qrX, qrY+qrSize-boxSize*4, boxSize*4, boxSize*4, 'S'); doc.rect(qrX+boxSize, qrY+qrSize-boxSize*3, boxSize*2, boxSize*2, 'F');
+
+            doc.setTextColor(120, 120, 120);
+            doc.setFontSize(8);
+            doc.text("PAYMENT VERIFIED VIA", 45, totalY + 8);
+            
+            doc.setTextColor(14, 165, 233);
+            doc.setFontSize(12);
+            doc.setFont("helvetica", "bold");
+            doc.text(cryptoType, 45, totalY + 15);
+
+            // --- 5. TOTAL BLOCK ---
             doc.setFillColor(15, 23, 42); 
-            doc.rect(120, totalY, 75, 25, 'F');
+            doc.rect(120, totalY, 75, 26, 'F');
             
             doc.setTextColor(255, 255, 255);
             doc.setFontSize(10);
@@ -304,12 +299,11 @@
             
             doc.setFontSize(16);
             doc.setFont("helvetica", "bold");
-            doc.text("$" + cleanAmount, 190, totalY + 17, null, null, "right");
+            doc.text("$" + cleanAmount, 190, totalY + 18, null, null, "right");
 
-            // --- 6. FOOTER / SECURITY BARCODE ---
+            // --- 6. FOOTER / SECURITY BARCODE / CLICKABLE LINK ---
             const footerY = 280; 
 
-            // Barcode graphic
             doc.setFillColor(50, 50, 50);
             let barcodeX = 15;
             for(let i=0; i < 30; i++) {
@@ -318,15 +312,26 @@
                 barcodeX += rectWidth + (Math.random() * 2 + 0.5); 
             }
 
-            // Support text
             doc.setTextColor(150, 150, 150);
             doc.setFontSize(8);
             doc.setFont("helvetica", "italic");
             doc.text("Official Digital Receipt generated automatically.", 105, footerY, null, null, "center");
             
+            // Adding the Clickable Telegram Hyperlink
             doc.setTextColor(14, 165, 233); 
             doc.setFont("helvetica", "bold");
-            doc.text("Telegram Support: @Silverbullets_bot", 105, footerY + 5, null, null, "center"); 
+            
+            let tgText = "Telegram Support: @Silverbullets_bot";
+            let tgWidth = doc.getTextWidth(tgText);
+            let tgX = 105 - (tgWidth / 2); // Centers the clickable area perfectly
+            
+            // Create the hyperlink
+            doc.textWithLink(tgText, tgX, footerY + 5, { url: 'https://t.me/Silverbullets_bot' });
+            
+            // Draw a subtle underline so it looks like a link
+            doc.setDrawColor(14, 165, 233);
+            doc.setLineWidth(0.2);
+            doc.line(tgX, footerY + 6, tgX + tgWidth, footerY + 6);
 
             // Trigger Download
             doc.save("Silverbullet_Receipt_" + orderNumber + ".pdf");
@@ -334,7 +339,7 @@
             // UI Feedback
             const btn = document.getElementById('generateBtn');
             const originalText = btn.innerText;
-            btn.innerText = "INVOICE DOWNLOADED! ✓";
+            btn.innerText = "ELITE RECEIPT DOWNLOADED! ✓";
             btn.classList.add("success");
             
             setTimeout(() => {
