@@ -53,8 +53,7 @@
 </head>
 <body>
 
-    <!-- Hidden image loaded directly from your Github file -->
-    <img id="storeLogo" src="logo.jpg" style="display:none;" crossorigin="anonymous">
+    <img id="storeLogo" src="logo.png" style="display:none;" crossorigin="anonymous">
 
     <h2>SILVERBULLET</h2>
 
@@ -99,15 +98,15 @@
             doc.setLineWidth(1.5);
             doc.line(0, 45, 210, 45);
             
-            // --- ADDING THE LOGO (Pulls from the hidden image tag) ---
+            // --- ADDING THE LOGO ---
             const logoImg = document.getElementById('storeLogo');
-            doc.addImage(logoImg, 'JPEG', 15, 12, 20, 20); 
+            doc.addImage(logoImg, 'PNG', 12, 8, 28, 28); 
 
             // "SILVERBULLET" Main Title 
             doc.setTextColor(255, 255, 255); 
             doc.setFontSize(26);
             doc.setFont("helvetica", "bold");
-            doc.text("SILVERBULLET", 40, 28);
+            doc.text("SILVERBULLET", 44, 28);
             
             // Receipt Badge 
             doc.setFillColor(14, 165, 233);
@@ -179,7 +178,8 @@
             
             doc.setTextColor(14, 165, 233); 
             doc.setFont("helvetica", "bold");
-            doc.text("Support: @Silverbullets_bot on Telegram", 105, footerY + 6, null, null, "center");
+            // CHANGED LINE BELOW
+            doc.text("Telegram Support: @Silverbullets_bot", 105, footerY + 6, null, null, "center"); 
 
             doc.save("Silverbullet_Receipt_" + orderNumber + ".pdf");
         }
